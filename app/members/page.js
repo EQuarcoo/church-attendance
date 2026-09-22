@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { Panel } from '@/components/FormControls';
 
 export default async function MembersPage() {
   const { data: members, error } = await supabase
@@ -8,56 +9,52 @@ export default async function MembersPage() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    return (
-      <div className="p-8">
-        <p className="text-red-600">Error loading members: {error.message}</p>
-      </div>
-    );
+    return <p className="p-8 text-red-500 text-sm">Error loading members: {error.message}</p>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <main className="min-h-screen p-6 md:p-10">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Members</h1>
+          <div>
+            <h1 className="text-lg font-semibold text-black dark:text-white">Members</h1>
+            <p className="text-sm text-black/40 dark:text-white/40">{members.length} registered</p>
+          </div>
           <Link
             href="/register"
-            className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-700 transition-colors"
+            className="bg-green-500 text-black font-medium text-sm px-4 py-2 rounded-md hover:bg-green-400 transition-colors"
           >
-            + Register Member
+            + Register
           </Link>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-gray-100 text-gray-700 text-sm">
-              <tr>
-                <th className="px-4 py-3">Member Code</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Department</th>
-                <th className="px-4 py-3">QR</th>
-                <th className="px-4 py-3">History</th>
+        <Panel>
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-black/10 dark:border-white/10">
+                <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">Code</th>
+                <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">Name</th>
+                <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">Phone</th>
+                <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">Department</th>
+                <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">Card</th>
+                <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">History</th>
               </tr>
             </thead>
             <tbody>
               {members.map((member) => (
-                <tr key={member.id} className="border-t border-gray-100">
-                  <td className="px-4 py-3 font-mono text-sm">{member.member_code}</td>
-                  <td className="px-4 py-3">{member.full_name}</td>
-                  <td className="px-4 py-3">{member.phone}</td>
-                  <td className="px-4 py-3">{member.department || '—'}</td>
+                <tr key={member.id} className="border-b border-black/5 dark:border-white/5 last:border-b-0 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]">
+                  <td className="px-4 py-3 font-mono text-xs text-black/60 dark:text-white/60">{member.member_code}</td>
+                  <td className="px-4 py-3 text-black dark:text-white">{member.full_name}</td>
+                  <td className="px-4 py-3 text-black/60 dark:text-white/60">{member.phone}</td>
+                  <td className="px-4 py-3 text-black/60 dark:text-white/60">{member.department || '—'}</td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/members/${member.member_code}/card`}
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      View QR
+                    <Link href={`/members/${member.member_code}/card`} className="text-green-600 dark:text-green-400 hover:underline text-xs">
+                      View
                     </Link>
                   </td>
                   <td className="px-4 py-3">
-                    <Link href={`/members/${member.member_code}/history`} className="text-blue-600 hover:underline text-sm">
-                      View History
+                    <Link href={`/members/${member.member_code}/history`} className="text-green-600 dark:text-green-400 hover:underline text-xs">
+                      View
                     </Link>
                   </td>
                 </tr>
@@ -66,10 +63,10 @@ export default async function MembersPage() {
           </table>
 
           {members.length === 0 && (
-            <p className="text-center text-gray-500 py-8">No members registered yet.</p>
+            <p className="text-center text-black/40 dark:text-white/40 text-sm py-12">No members registered yet.</p>
           )}
-        </div>
+        </Panel>
       </div>
-    </div>
+    </main>
   );
 }

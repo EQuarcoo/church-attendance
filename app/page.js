@@ -1,28 +1,31 @@
 import Link from 'next/link';
 
+const cards = [
+  { href: '/register', title: 'Register a member', desc: 'Add a new member with full details.' },
+  { href: '/members', title: 'Members', desc: 'View, print cards, and check attendance history.' },
+  { href: '/checkin', title: 'Check in', desc: 'Scan QR codes for Sunday attendance.' },
+  { href: '/dashboard', title: 'Dashboard', desc: "This Sunday's numbers at a glance." },
+  { href: '/followup', title: 'Follow-up', desc: 'Members who need a visit or a call.' },
+];
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Church Attendance System</h1>
-        <div className="flex gap-4 justify-center">
-          <div className="flex gap-4 justify-center flex-wrap">
-  <Link href="/register" className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-700 transition-colors">
-    Register Member
-  </Link>
-  <Link href="/members" className="bg-gray-200 text-gray-800 font-medium rounded-md px-4 py-2 hover:bg-gray-300 transition-colors">
-    View Members
-  </Link>
-  <Link href="/checkin" className="bg-green-600 text-white font-medium rounded-md px-4 py-2 hover:bg-green-700 transition-colors">
-    Check In
-  </Link>
-  <Link href="/dashboard" className="bg-purple-600 text-white font-medium rounded-md px-4 py-2 hover:bg-purple-700 transition-colors">
-    Dashboard
-  </Link>
-</div>
-          
-        </div>
+    <main className="p-6 md:p-10 max-w-4xl">
+      <h1 className="text-lg font-semibold text-black dark:text-white mb-1">Overview</h1>
+      <p className="text-sm text-black/40 dark:text-white/40 mb-8">Everything you need to run Sunday check-in.</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {cards.map((c) => (
+          <Link
+            key={c.href}
+            href={c.href}
+            className="block border border-black/10 dark:border-white/10 rounded-lg p-5 bg-black/[0.015] dark:bg-white/[0.02] hover:border-green-500/50 transition-colors"
+          >
+            <h2 className="text-sm font-semibold text-black dark:text-white mb-1">{c.title}</h2>
+            <p className="text-xs text-black/40 dark:text-white/40">{c.desc}</p>
+          </Link>
+        ))}
       </div>
-    </div>
+    </main>
   );
 }

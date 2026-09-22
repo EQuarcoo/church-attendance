@@ -1,87 +1,79 @@
 import { supabase } from '@/lib/supabase';
-import { getStaffUser } from '@/lib/getStaffUser';
+import { Panel } from '@/components/FormControls';
 
-function getDateKey(dateInput) {
-  return new Date(dateInput).toISOString().split('T')[0];
-}
+function getConsecutiveMisses(lastCheckInIso) {
+  if (!lastCheckInIso) return 0;
 
-// Build an array of the last `count` Sundays, most recent first
-function getRecentSundays(count) {
-  const sundays = [];
-  const today = new Date();
-  const current = new Date(today);
+  const lastCheckIn = new Date(lastCheckInIso);
+  const now = new Date();
+  const diffDays = Math.max(0, Math.floor((now.getTime() - lastCheckIn.getTime()) / 86400000));
 
-  // Step back to the most recent Sunday (or today, if today is Sunday)
-  current.setDate(current.getDate() - current.getDay());
+  if (diffDays < 21) return 0;
 
-  for (let i = 0; i < count; i++) {
-    sundays.push(getDateKey(current));
-    current.setDate(current.getDate() - 7);
-  }
-
-  return sundays;
+  return Math.max(1, Math.floor(diffDays / 7));
 }
 
 export default async function FollowUpPage() {
-  const staffUser = await getStaffUser();
-  const { data: members } = await supabase.from('members').select('member_code, full_name, phone');
-  const { data: attendance } = await supabase.from('attendance').select('member_code, checked_in_at');
+  const { data: members, error: membersError } = await supabase
+    .from('members')
+    .select('member_code, full_name, phone');
 
-  const recentSundays = getRecentSundays(8);
+  if (membersError) {
+    return <p className="p-8 text-red-500 text-sm">Error loading follow-up list: {membersError.message}</p>;
+  }
 
-  // Build a lookup: for each member, which dates did they attend?
-  const attendanceByMember = {};
+  const { data: attendance, error: attendanceError } = await supabase
+    .from('attendance')
+    .select('member_code, checked_in_at')
+    .order('checked_in_at', { ascending: false });
+
+  if (attendanceError) {
+    return <p className="p-8 text-red-500 text-sm">Error loading attendance: {attendanceError.message}</p>;
+  }
+
+  const latestCheckInByMember = new Map();
+
   for (const record of attendance || []) {
-    const key = record.member_code;
-    const dateKey = getDateKey(record.checked_in_at);
-    if (!attendanceByMember[key]) attendanceByMember[key] = new Set();
-    attendanceByMember[key].add(dateKey);
+    if (!record.member_code || latestCheckInByMember.has(record.member_code)) continue;
+    latestCheckInByMember.set(record.member_code, record.checked_in_at);
   }
 
-  // For each member, count consecutive missed Sundays, starting from the most recent
-  const flaggedMembers = [];
-
-  for (const member of members || []) {
-    const attendedDates = attendanceByMember[member.member_code] || new Set();
-
-    let consecutiveMisses = 0;
-    for (const sunday of recentSundays) {
-      if (attendedDates.has(sunday)) break; // they attended — streak broken, stop counting
-      consecutiveMisses++;
-    }
-
-    if (consecutiveMisses >= 3) {
-      flaggedMembers.push({ ...member, consecutiveMisses });
-    }
-  }
+  const flaggedMembers = (members || [])
+    .map((member) => {
+      const consecutiveMisses = getConsecutiveMisses(latestCheckInByMember.get(member.member_code));
+      return { ...member, consecutiveMisses };
+    })
+    .filter((member) => member.consecutiveMisses >= 3);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <main className="min-h-screen p-6 md:p-10">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Follow-Up Recommended</h1>
-        <p className="text-gray-600 mb-6">Members who have missed 3 or more consecutive Sundays.</p>
+        <h1 className="text-lg font-semibold text-black dark:text-white mb-1">Follow-up recommended</h1>
+        <p className="text-sm text-black/40 dark:text-white/40 mb-6">
+          Members who have missed 3 or more consecutive Sundays.
+        </p>
 
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <Panel>
           {flaggedMembers.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">
-              No members currently need follow-up. 🎉
+            <p className="text-center text-black/40 dark:text-white/40 text-sm py-12">
+              No members currently need follow-up.
             </p>
           ) : (
-            <table className="w-full text-left">
-              <thead className="bg-gray-100 text-gray-700 text-sm">
-                <tr>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Phone</th>
-                  <th className="px-4 py-3">Missed</th>
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-black/10 dark:border-white/10">
+                  <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">Name</th>
+                  <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">Phone</th>
+                  <th className="px-4 py-3 text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 font-medium">Missed</th>
                 </tr>
               </thead>
               <tbody>
                 {flaggedMembers.map((m) => (
-                  <tr key={m.member_code} className="border-t border-gray-100">
-                    <td className="px-4 py-3">{m.full_name}</td>
-                    <td className="px-4 py-3">{m.phone}</td>
+                  <tr key={m.member_code} className="border-b border-black/5 dark:border-white/5 last:border-b-0">
+                    <td className="px-4 py-3 text-black dark:text-white">{m.full_name}</td>
+                    <td className="px-4 py-3 text-black/60 dark:text-white/60">{m.phone}</td>
                     <td className="px-4 py-3">
-                      <span className="bg-red-100 text-red-700 text-sm font-medium px-2 py-1 rounded">
+                      <span className="text-xs font-medium text-red-500 border border-red-500/30 bg-red-500/5 px-2 py-1 rounded">
                         {m.consecutiveMisses} Sundays
                       </span>
                     </td>
@@ -90,8 +82,8 @@ export default async function FollowUpPage() {
               </tbody>
             </table>
           )}
-        </div>
+        </Panel>
       </div>
-    </div>
+    </main>
   );
 }

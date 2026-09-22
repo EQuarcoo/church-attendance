@@ -49,16 +49,42 @@ async function registerMember(formData) {
 function Field({ label, name, type, required }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required ? '*' : ''}
+      <label className="block text-sm text-[#64748B] mb-1.5">
+        {label} {required ? <span className="text-[#B1543A]">*</span> : ''}
       </label>
       <input
         type={type || 'text'}
         name={name}
         required={required || false}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full border-b border-[#1E2A45]/15 bg-transparent pb-2 focus:outline-none focus:border-[#B8863F] transition-colors"
       />
     </div>
+  );
+}
+
+function Select({ label, name, options, defaultValue }) {
+  return (
+    <div>
+      <label className="block text-sm text-[#64748B] mb-1.5">{label}</label>
+      <select
+        name={name}
+        defaultValue={defaultValue || ''}
+        className="w-full border-b border-[#1E2A45]/15 bg-transparent pb-2 focus:outline-none focus:border-[#B8863F] transition-colors"
+      >
+        <option value="">— select —</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function SectionLabel({ children }) {
+  return (
+    <h2 className="font-display text-lg pt-4 pb-1 border-t border-[#1E2A45]/10 first:border-t-0 first:pt-0">
+      {children}
+    </h2>
   );
 }
 
@@ -68,75 +94,47 @@ export default async function RegisterPage() {
     .select('name')
     .order('name', { ascending: true });
 
+  const deptNames = departments?.map((d) => d.name) || [];
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 py-10">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Member Registration</h1>
+    <main className="max-w-xl mx-auto px-6 py-16">
+      <p className="text-[#B8863F] text-sm font-medium mb-2">New Member</p>
+      <h1 className="font-display text-3xl mb-10">Register a member</h1>
 
-        <form action={registerMember} className="space-y-4">
-          <Field label="Full Name" name="full_name" required={true} />
-          <Field label="Phone" name="phone" required={true} />
-          <Field label="Email" name="email" type="email" />
-          <Field label="Date of Birth" name="date_of_birth" type="date" />
+      <form action={registerMember} className="space-y-6">
+        <SectionLabel>Basic details</SectionLabel>
+        <Field label="Full name" name="full_name" required />
+        <Field label="Phone" name="phone" required />
+        <Field label="Email" name="email" type="email" />
+        <Field label="Date of birth" name="date_of_birth" type="date" />
+        <Select label="Gender" name="gender" options={['Male', 'Female']} />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-            <select name="gender" className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">-- select --</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </div>
+        <SectionLabel>Contact & home</SectionLabel>
+        <Field label="Residence" name="residence" />
+        <Field label="Immediate contact name" name="immediate_contact_name" />
+        <Field label="Immediate contact phone" name="immediate_contact_phone" />
 
-          <Field label="Residence" name="residence" />
-          <Field label="Immediate Contact Name" name="immediate_contact_name" />
-          <Field label="Immediate Contact Phone" name="immediate_contact_phone" />
+        <SectionLabel>Church life</SectionLabel>
+        <Select label="Department" name="department" options={deptNames} />
+        <Field label="Fellowship" name="fellowship" />
+        <Select
+          label="Role"
+          name="role"
+          defaultValue="Member"
+          options={['Member', 'Pastor', 'Resident Pastor', 'Head Pastor', 'Elder', 'Deacon', 'Head of Department']}
+        />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-            <select name="department" className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">-- select --</option>
-              {departments?.map((dept) => (
-                <option key={dept.name} value={dept.name}>{dept.name}</option>
-              ))}
-            </select>
-          </div>
+        <SectionLabel>Other</SectionLabel>
+        <Select label="Marital status" name="marital_status" options={['Single', 'Married', 'Divorced', 'Widowed']} />
+        <Field label="Occupation" name="occupation" />
 
-          <Field label="Fellowship" name="fellowship" />
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
-            <select name="marital_status" className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">-- select --</option>
-              <option value="single">Single</option>
-              <option value="married">Married</option>
-              <option value="divorced">Divorced</option>
-              <option value="widowed">Widowed</option>
-            </select>
-          </div>
-
-          <Field label="Occupation" name="occupation" />
-          <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-  <select name="role" defaultValue="Member" className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-    <option value="Member">Member</option>
-    <option value="Pastor">Pastor</option>
-    <option value="Resident Pastor">Resident Pastor</option>
-    <option value="Head Pastor">Head Pastor</option>
-    <option value="Elder">Elder</option>
-    <option value="Deacon">Deacon</option>
-    <option value="Head of Department">Head of Department</option>
-  </select>
-</div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-700 transition-colors"
-          >
-            Register
-          </button>
-        </form>
-      </div>
-    </div>
+        <button
+          type="submit"
+          className="w-full bg-[#1E2A45] text-white py-3 rounded hover:bg-[#16203a] transition-colors mt-4"
+        >
+          Register member
+        </button>
+      </form>
+    </main>
   );
 }
