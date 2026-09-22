@@ -6,12 +6,21 @@ export default function Home() {
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Church Attendance System</h1>
         <div className="flex gap-4 justify-center">
-          <Link href="/register" className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-700 transition-colors">
-            Register Member
-          </Link>
-          <Link href="/members" className="bg-gray-200 text-gray-800 font-medium rounded-md px-4 py-2 hover:bg-gray-300 transition-colors">
-            View Members
-          </Link>
+          <div className="flex gap-4 justify-center flex-wrap">
+  <Link href="/register" className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 hover:bg-blue-700 transition-colors">
+    Register Member
+  </Link>
+  <Link href="/members" className="bg-gray-200 text-gray-800 font-medium rounded-md px-4 py-2 hover:bg-gray-300 transition-colors">
+    View Members
+  </Link>
+  <Link href="/checkin" className="bg-green-600 text-white font-medium rounded-md px-4 py-2 hover:bg-green-700 transition-colors">
+    Check In
+  </Link>
+  <Link href="/dashboard" className="bg-purple-600 text-white font-medium rounded-md px-4 py-2 hover:bg-purple-700 transition-colors">
+    Dashboard
+  </Link>
+</div>
+          
         </div>
       </div>
     </div>
