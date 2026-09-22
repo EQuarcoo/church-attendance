@@ -1,10 +1,12 @@
 import { supabase } from '@/lib/supabase';
+import { getStaffUser } from '@/lib/getStaffUser';
 
 function getDateKey(isoString) {
   return new Date(isoString).toISOString().split('T')[0]; // e.g. "2026-09-21"
 }
 
 export default async function DashboardPage() {
+  const staffUser = await getStaffUser();
   const { data: members } = await supabase.from('members').select('id');
   const { data: attendance } = await supabase
     .from('attendance')
@@ -40,7 +42,18 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Leadership Dashboard</h1>
+        
+        <div className="flex justify-between items-center mb-6">
+  <h1 className="text-2xl font-bold text-gray-900">Leadership Dashboard</h1>
+  <div className="flex items-center gap-3">
+    <span className="text-sm text-gray-600">{staffUser.full_name} ({staffUser.role})</span>
+    <form action="/logout" method="POST">
+      <button className="text-sm bg-gray-200 text-gray-700 rounded-md px-3 py-1.5 hover:bg-gray-300 transition-colors">
+        Log Out
+      </button>
+    </form>
+  </div>
+</div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-xl shadow-md p-5">

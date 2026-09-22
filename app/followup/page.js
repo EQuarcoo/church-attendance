@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { getStaffUser } from '@/lib/getStaffUser';
 
 function getDateKey(dateInput) {
   return new Date(dateInput).toISOString().split('T')[0];
@@ -22,6 +23,7 @@ function getRecentSundays(count) {
 }
 
 export default async function FollowUpPage() {
+  const staffUser = await getStaffUser();
   const { data: members } = await supabase.from('members').select('member_code, full_name, phone');
   const { data: attendance } = await supabase.from('attendance').select('member_code, checked_in_at');
 
