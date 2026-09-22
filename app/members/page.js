@@ -37,6 +37,7 @@ export default async function MembersPage() {
                 <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">Department</th>
                 <th className="px-4 py-3">QR</th>
+                <th className="px-4 py-3">History</th>
               </tr>
             </thead>
             <tbody>
@@ -52,6 +53,11 @@ export default async function MembersPage() {
                       className="text-blue-600 hover:underline text-sm"
                     >
                       View QR
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3">
+                    <Link href={`/members/${member.member_code}/history`} className="text-blue-600 hover:underline text-sm">
+                      View History
                     </Link>
                   </td>
                 </tr>

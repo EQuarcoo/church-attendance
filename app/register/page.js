@@ -16,6 +16,7 @@ async function registerMember(formData) {
   const fellowship = formData.get('fellowship');
   const maritalStatus = formData.get('marital_status');
   const occupation = formData.get('occupation');
+  const role = formData.get('role');
 
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const memberCode = `SM-${randomNum}`;
@@ -34,6 +35,7 @@ async function registerMember(formData) {
     fellowship: fellowship || null,
     marital_status: maritalStatus || null,
     occupation: occupation || null,
+    role: role || 'Member',
   });
 
   if (error) {
@@ -41,7 +43,7 @@ async function registerMember(formData) {
     throw new Error(`Could not register member: ${error.message}`);
   }
 
-redirect(`/register/success?code=${memberCode}`);
+  redirect(`/register/success?code=${memberCode}`);
 }
 
 function Field({ label, name, type, required }) {
@@ -60,7 +62,12 @@ function Field({ label, name, type, required }) {
   );
 }
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const { data: departments } = await supabase
+    .from('departments')
+    .select('name')
+    .order('name', { ascending: true });
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 py-10">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
@@ -84,7 +91,17 @@ export default function RegisterPage() {
           <Field label="Residence" name="residence" />
           <Field label="Immediate Contact Name" name="immediate_contact_name" />
           <Field label="Immediate Contact Phone" name="immediate_contact_phone" />
-          <Field label="Department" name="department" />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <select name="department" className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">-- select --</option>
+              {departments?.map((dept) => (
+                <option key={dept.name} value={dept.name}>{dept.name}</option>
+              ))}
+            </select>
+          </div>
+
           <Field label="Fellowship" name="fellowship" />
 
           <div>
@@ -99,6 +116,18 @@ export default function RegisterPage() {
           </div>
 
           <Field label="Occupation" name="occupation" />
+          <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+  <select name="role" defaultValue="Member" className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <option value="Member">Member</option>
+    <option value="Pastor">Pastor</option>
+    <option value="Resident Pastor">Resident Pastor</option>
+    <option value="Head Pastor">Head Pastor</option>
+    <option value="Elder">Elder</option>
+    <option value="Deacon">Deacon</option>
+    <option value="Head of Department">Head of Department</option>
+  </select>
+</div>
 
           <button
             type="submit"
