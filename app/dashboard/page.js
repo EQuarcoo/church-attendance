@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { getStaffUser } from '@/lib/getStaffUser';
 import { Panel } from '@/components/FormControls';
+export const dynamic = 'force-dynamic';
 
 function getDateKey(isoString) {
   return new Date(isoString).toISOString().split('T')[0];

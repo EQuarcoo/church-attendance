@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { Panel } from '@/components/FormControls';
+export const dynamic = 'force-dynamic';
 
 function getConsecutiveMisses(lastCheckInIso) {
   if (!lastCheckInIso) return 0;

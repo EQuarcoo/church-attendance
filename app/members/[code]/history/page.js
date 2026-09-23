@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Panel } from '@/components/FormControls';
+export const dynamic = 'force-dynamic';
 
 export default async function MemberHistoryPage({ params }) {
   const { code } = await params;

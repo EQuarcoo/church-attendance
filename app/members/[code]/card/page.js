@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import CardDisplay from './CardDisplay';
+export const dynamic = 'force-dynamic';
 
 export default async function MemberCardPage({ params }) {
   const { code } = await params;
